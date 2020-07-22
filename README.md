@@ -1,3 +1,8 @@
+### CAPTURE DEVICE
+~~~
+$ v4l2-ctl --list-devices
+~~~
+
 ### IP WEBCAM
 ~~~
 $ gst-launch-1.0 souphttpsrc location="http://ip:port/videofeed" is_live=true ! jpegdec ! autovideosink
