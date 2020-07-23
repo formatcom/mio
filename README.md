@@ -12,6 +12,7 @@ $ gst-launch-1.0 souphttpsrc location="http://ip:port/videofeed" is_live=true ! 
 ### SOUND
 ~~~
 $ pactl load-module module-jack-sink
+$ pactl load-module module-jack-source
 ~~~
 
 ### MIC TO SPEAKERS
