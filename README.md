@@ -29,3 +29,10 @@ $ pactl load-module module-jack-source
 ~~~
 # pactl load-module module-loopback latency_msec=1
 ~~~
+
+### alsa
+~~~
+$ cat /proc/asound/cards
+$ alsa_in  -d hw:0
+$ alsa_out -d hw:0
+~~~
