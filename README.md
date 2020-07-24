@@ -8,6 +8,12 @@ $ v4l2-ctl --list-devices
 $ aplay -l
 ~~~
 
+### pulseaudio conf
+~~~
+$ pactl list
+$ vim /etc/pulse/default.pa
+~~~
+
 ### CONF SOUND
 ~~~
 $ alsamixer
