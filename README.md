@@ -1,6 +1,16 @@
-### CAPTURE DEVICE
+### CAPTURE VIDEO DEVICE
 ~~~
 $ v4l2-ctl --list-devices
+~~~
+
+### SOUND DEVICE
+~~~
+$ aplay -l
+~~~
+
+### CONF SOUND
+~~~
+$ alsamixer
 ~~~
 
 ### IP WEBCAM
