@@ -41,4 +41,5 @@ $ pactl load-module module-jack-source
 $ cat /proc/asound/cards
 $ alsa_in  -d hw:0
 $ alsa_out -d hw:0
+$ alsa_in -j 'Console Source' -d hw:1
 ~~~
