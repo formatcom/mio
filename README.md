@@ -164,3 +164,85 @@ $ sudo modprobe v4l2loopback
 $ gst-launch-1.0 souphttpsrc location="http://192.168.0.11:8080/video" is_live=true ! jpegdec ! autovideosink
 $ gst-launch-1.0 souphttpsrc location="http://192.168.0.11:8080/video" is_live=true ! jpegdec ! videoconvert ! v4l2sink device=/dev/video1
 ~~~
+
+### test filter
+~~~
+$ ffmpeg -y -f v4l2 -s 640x480 -i /dev/video3 \
+	-f lavfi -i color=gray:s=640x480 \
+	-f lavfi -i color=white:s=640x480 \
+	-f lavfi -i color=black:s=640x480 \
+	-f alsa -i hw:0 -filter_complex "[0:0][1:0][3:0][0:0]threshold" output.mp4
+~~~
+
+~~~
+$ ffmpeg -y -f v4l2 -s 1920x1080 \
+	-i /dev/video5 \
+	-i /dev/video3 \
+	-f lavfi -i color=gray:s=640x480 \
+	-f lavfi -i color=white:s=640x480 \
+	-f lavfi -i color=black:s=640x480 \
+	-f v4l2 -f alsa -i hw:1 \
+	-filter_complex "[1:v][2:v][4:v][1:v]threshold[cout]; [cout]colorkey=black:0.5:0.9[out]; [0:v][out]overlay=10:10" output.mp4
+~~~
+
+### transmitir video a un lookback para evitar el limite de conexiones ( device busy )
+
+~~~
+$ ffmpeg -y -f v4l2 -s 640x480 -i /dev/video3 \
+	-pix_fmt yuyv422 -f v4l2 /dev/video0
+~~~
+
+### con filtro
+
+~~~
+$ ffmpeg -y -f v4l2 -s 640x480 -i /dev/video3 \
+	-f lavfi -i color=gray:s=1280x720 \
+	-f lavfi -i color=white:s=1280x720 \
+	-f lavfi -i color=black:s=1280x720 \
+	-filter_complex "[0:v][1:v][3:v][0:v]threshold, scale=320:180" \
+	-pix_fmt yuyv422 -f v4l2 /dev/video0
+~~~
+
+### ver resultado
+
+~~~
+$ ffplay /dev/video0
+~~~
+
+
+### setup que estoy utilizando actualmente
+
+~~~
+  Para la webcam estoy utilizando un truco inspirado en la pantalla verde,
+y trabajando ayudandome con obs para tener un preview y crear la gui.
+~~~
+
+- lienzo 640x480 color #00557f
+- webcam 368x284 con un filtro luma
+- la salida la retransmito por v4l2 a 30 fps ( driver de video linux ) a /dev/video0
+
+![webcam](webcam.png =1280x720)
+
+~~~
+  Para la captura de video que es la parte mas importante en cuanto a calidad y
+rendiento lo hago ffmpeg con qsv para alcanzar alto rendiento y mucha calidad
+con pocos recursos.
+~~~
+
+~~~
+$ ffmpeg -y -f alsa -i hw:0 -f alsa -i hw:1 \
+	-init_hw_device qsv=hw -filter_hw_device hw \
+	-f v4l2  -i /dev/video5 \
+	-f v4l2 -i /dev/video0 \
+	-filter_complex "
+		[0:a][1:a]amix=inputs=2;
+		[3:v]colorkey=#00557f:0.2:0.4[cout],
+		[2:v][cout]overlay=1270:10,
+		hwupload=extra_hw_frames=4, format=qsv"
+		-vcodec h264_qsv -b:v 15M -global_quality 15 output.mp4
+~~~
+
+~~~
+NOTA: el volumen lo estoy controlando directamente desde pulse (driver de audio),
+pero estoy trabajando para tener una mejor calidad de sonido.
+~~~
