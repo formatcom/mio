@@ -221,7 +221,7 @@ y trabajando ayudandome con obs para tener un preview y crear la gui.
 - webcam 368x284 con un filtro luma
 - la salida la retransmito por v4l2 a 30 fps ( driver de video linux ) a /dev/video0
 
-![webcam](webcam.png =1280x720)
+![webcam](webcam.png)
 
 ~~~
   Para la captura de video que es la parte mas importante en cuanto a calidad y
