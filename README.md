@@ -163,7 +163,7 @@ $ pactl unload-module module-loopback
 ### device null (para utilizarlo como entrada virtual)
 
 ~~~
-$ pactl load-module module-null-sink sink_name=console
+$ pactl load-module module-null-sink sink_name=Console sink_properties=device.description="Console"
 $ pactl load-module module-loopback latency_msec=1 sink=console
 ~~~
 
