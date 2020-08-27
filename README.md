@@ -99,6 +99,8 @@ $ ffmpeg -f pulse -i default -f v4l2 \
 	-i /dev/video5 -vcodec copy output.mkv
 ~~~
 
+### ffmpeg | pulse sources
+
 ~~~
 NOTA: para pulse se puede utilizar la entrada por defecto, o utilizar cualquiera
 que este en la lista de dispositivos de entrara la cual podemos obtener con este
