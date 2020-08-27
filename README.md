@@ -90,19 +90,25 @@ $ ffmpeg -h encoder=h264_qsv
 ### capturar con el cpu
 
 ~~~
-$ ffmpeg -f alsa  -i hw:1    -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video5 -vcodec copy output.mkv
-$ ffmpeg -f pulse -i default -f v4l2 -framerate 60 -video_size 1920x1080 -input_format mjpeg -i /dev/video5 -vcodec copy output.mkv
+$ ffmpeg -f alsa  -i hw:1    -f v4l2 \
+	-framerate 60 -video_size 1920x1080 -input_format mjpeg \
+	-i /dev/video5 -vcodec copy output.mkv
+
+$ ffmpeg -f pulse -i default -f v4l2 \
+	-framerate 60 -video_size 1920x1080 -input_format mjpeg \
+	-i /dev/video5 -vcodec copy output.mkv
 ~~~
 
 
 ### intel Quick Sync va-api
 
-### capturar con tarjeta de video
-### intel /dev/dri/renderD128
-### amd   /dev/dri/renderD129
+- intel /dev/dri/renderD128
+- amd   /dev/dri/renderD129
 
 ~~~
-$ ffmpeg -vaapi_device /dev/dri/renderD128 -video_size 1280x720 -i /dev/video5 -filter_complex format=nv12,hwupload -vcodec h264_vaapi output.mkv
+$ ffmpeg -vaapi_device /dev/dri/renderD128 -video_size 1280x720 \
+	-i /dev/video5 -filter_complex format=nv12,hwupload 
+	-vcodec h264_vaapi output.mkv
 ~~~
 
 ### intel Quick Sync qsv
@@ -154,6 +160,13 @@ $ pactl load-module   module-loopback
 $ pactl unload-module module-loopback
 ~~~
 
+### device null (para utilizarlo como entrada virtual)
+
+~~~
+$ pactl load-module module-null-sink sink_name=console
+$ pactl load-module module-loopback latency_msec=1 sink=console
+~~~
+
 ### loopback video
 ~~~
 $ sudo modprobe v4l2loopback
@@ -161,8 +174,11 @@ $ sudo modprobe v4l2loopback
 
 ### ip webcam
 ~~~
-$ gst-launch-1.0 souphttpsrc location="http://192.168.0.11:8080/video" is_live=true ! jpegdec ! autovideosink
-$ gst-launch-1.0 souphttpsrc location="http://192.168.0.11:8080/video" is_live=true ! jpegdec ! videoconvert ! v4l2sink device=/dev/video1
+$ gst-launch-1.0 souphttpsrc location="http://192.168.0.11:8080/video" \
+	is_live=true ! jpegdec ! autovideosink
+
+$ gst-launch-1.0 souphttpsrc location="http://192.168.0.11:8080/video" \
+	is_live=true ! jpegdec ! videoconvert ! v4l2sink device=/dev/video1
 ~~~
 
 ### test filter
@@ -182,7 +198,10 @@ $ ffmpeg -y -f v4l2 -s 1920x1080 \
 	-f lavfi -i color=white:s=640x480 \
 	-f lavfi -i color=black:s=640x480 \
 	-f v4l2 -f alsa -i hw:1 \
-	-filter_complex "[1:v][2:v][4:v][1:v]threshold[cout]; [cout]colorkey=black:0.5:0.9[out]; [0:v][out]overlay=10:10" output.mp4
+	-filter_complex "
+		[1:v][2:v][4:v][1:v]threshold[cout],
+		[cout]colorkey=black:0.5:0.9[out],
+		[0:v][out]overlay=10:10" output.mp4
 ~~~
 
 ### transmitir video a un lookback para evitar el limite de conexiones ( device busy )
@@ -245,4 +264,10 @@ $ ffmpeg -y -f alsa -i hw:0 -f alsa -i hw:1 \
 ~~~
 NOTA: el volumen lo estoy controlando directamente desde pulse (driver de audio),
 pero estoy trabajando para tener una mejor calidad de sonido.
+~~~
+
+
+~~~
+ - volumen del juego menos de 50 %
+ - volumen del microfono 80 %
 ~~~
