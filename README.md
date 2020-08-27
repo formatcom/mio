@@ -63,10 +63,6 @@ pero ninguna está especificada, por lo que se utilizan las dos
 primeras secuencias de video disponibles
 ~~~
 
-###          https://ffmpeg.org/ffmpeg-all.html
-### REF: 5.1 Especificadores de flujo <- documentacion importante
-
-
 ### listar dispositivos
 
 ~~~
@@ -109,37 +105,6 @@ comando.
 $ pactl list sources | grep Name
 ~~~
 
-
-### intel Quick Sync va-api
-
-- intel /dev/dri/renderD128
-- amd   /dev/dri/renderD129
-
-~~~
-$ ffmpeg -vaapi_device /dev/dri/renderD128 -video_size 1280x720 \
-	-i /dev/video5 -filter_complex format=nv12,hwupload 
-	-vcodec h264_vaapi output.mkv
-~~~
-
-### intel Quick Sync qsv
-
-~~~
-$ ffmpeg -y -f alsa -i hw:1 -init_hw_device qsv=hw -filter_hw_device hw     \
-	-f v4l2 -i /dev/video5 -filter_complex hwupload=extra_hw_frames=64  \
-	-vcodec h264_qsv -global_quality 15 -preset 7 -profile high output.mkv
-~~~
-
-### Configuración utilizada
-
-~~~
-$ ffmpeg -y -f alsa -i hw:1 -init_hw_device qsv=hw -filter_hw_device hw \
-	-f v4l2 -i /dev/video5 -f v4l2 -i /dev/video3                   \
-	-filter_complex overlay=1590:10,hwupload=extra_hw_frames=64     \
-	-vcodec h264_qsv -global_quality 15 -preset 7 -profile high output.mp4
-~~~
-
-### NOTA: extra_hw_frames=64 <- el valor no me queda claro su función
-
 ### alsa mixer
 
 ~~~
@@ -176,12 +141,49 @@ $ pactl unload-module module-loopback
 $ pactl load-module module-null-sink \
 	sink_name=Console sink_properties=device.description="Console"
 
-$ pactl load-module module-loopback latency_msec=1 sink=console
+$ pactl load-module module-loopback latency_msec=1 sink=Console
+~~~
+
+~~~
+NOTA: se puede asignar al inicio al inicio del sistema desde
+el archivo /etc/pulse/default.pa
 ~~~
 
 ### loopback video
 ~~~
 $ sudo modprobe v4l2loopback
+~~~
+
+
+### intel Quick Sync va-api
+
+- intel /dev/dri/renderD128
+- amd   /dev/dri/renderD129
+
+~~~
+$ ffmpeg -vaapi_device /dev/dri/renderD128 -video_size 1280x720 \
+	-i /dev/video5 -filter_complex format=nv12,hwupload 
+	-vcodec h264_vaapi output.mkv
+~~~
+
+### intel Quick Sync qsv
+
+~~~
+$ ffmpeg -y -f alsa -i hw:1 -init_hw_device qsv=hw -filter_hw_device hw     \
+	-f v4l2 -i /dev/video5 -filter_complex hwupload=extra_hw_frames=64  \
+	-vcodec h264_qsv -global_quality 15 -preset 7 -profile high output.mkv
+~~~
+
+### Configuración utilizada
+
+~~~
+$ ffmpeg -y -f alsa -i hw:1 -init_hw_device qsv=hw -filter_hw_device hw \
+	-f v4l2 -i /dev/video5 -f v4l2 -i /dev/video3                   \
+	-filter_complex overlay=1590:10,hwupload=extra_hw_frames=64     \
+	-vcodec h264_qsv -global_quality 15 -preset 7 -profile high output.mp4
+
+
+NOTA: extra_hw_frames=64 <- el valor no me queda claro su función
 ~~~
 
 ### ip webcam
@@ -276,10 +278,4 @@ $ ffmpeg -y -f alsa -i hw:0 -f alsa -i hw:1 \
 ~~~
 NOTA: el volumen lo estoy controlando directamente desde pulse (driver de audio),
 pero estoy trabajando para tener una mejor calidad de sonido.
-~~~
-
-
-~~~
- - volumen del juego menos de 50 %
- - volumen del microfono 80 %
 ~~~
