@@ -147,6 +147,9 @@ $ pactl load-module module-loopback latency_msec=1 sink=Console
 ~~~
 NOTA: se puede asignar al inicio al inicio del sistema desde
 el archivo /etc/pulse/default.pa
+
+El module-loopback solo me ha funcionado como lo espero si lo asigno
+manualmente, de lo contrario no se asigna a la entrada virtual.
 ~~~
 
 ### loopback video
