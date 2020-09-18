@@ -253,8 +253,8 @@ $ ffplay /dev/video0
 y trabajando ayudandome con obs para tener un preview y crear la gui.
 ~~~
 
-- lienzo 640x480 color #00557f
-- webcam 368x284 con un filtro luma
+- lienzo 320x240 color #00557f
+- webcam 320x240 con un filtro luma
 - la salida la retransmito por v4l2 a 30 fps ( driver de video linux ) a /dev/video0
 
 ![webcam](webcam.png)
@@ -281,4 +281,34 @@ $ ffmpeg -y -f alsa -i hw:0 -f alsa -i hw:1 \
 ~~~
 NOTA: el volumen lo estoy controlando directamente desde pulse (driver de audio),
 pero estoy trabajando para tener una mejor calidad de sonido.
+~~~
+
+
+### buscando una configuración mas escalable
+
+~~~
+- Primer paso capturar la webcam y el microfono (encode h264 para el video)
+
+$ ffmpeg -y -f pulse -i "alsa_input.pci-0000_00_1f.3.analog-stereo" \
+	-i /dev/video0 -vcodec h264 -qp 10 webcam.mkv
+
+- Segundo paso capturar la consola en raw, quedara pesada la salida pero sin perdida
+
+$ ffmpeg -y -f pulse -i "Console.monitor" -vsync vfr -i /dev/video5 -vcodec copy output.mkv
+
+~~~
+
+### pulse audio agrega un delay al audio asi que usare directamente el hw
+
+~~~
+- Primer paso capturar la webcam y el microfono (encode h264 para el video)
+
+$ ffmpeg -y -f alsa -i hw:0 -i /dev/video0 -filter:a "lowpass=f=1000" -map 1:v -map a:0 -vcodec h264 -qp 10 webcam.mkv
+
+- Segundo paso capturar la consola en raw, quedara pesada la salida pero sin perdida
+
+$ ffmpeg -y -f alsa -i hw:1 -vsync vfr -i /dev/video5 -vcodec copy output.mkv
+
+- Tercer paso unir ambos comandos para poder iniciar y cancelar la grabacion en un solo comando
+
 ~~~
